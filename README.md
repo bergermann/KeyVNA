@@ -12,18 +12,11 @@ offers not yet the full functionality possible.
 ## Installation
 
 
-To install the package run one of the following commands in the Julia REPL.
+To install the package run the following commands in the Julia REPL.
 
-Using SSH:
 ```julia
 using Pkg
-Pkg.add(url="git@git.rwth-aachen.de:nick1/BeadPull-jl.git")
-```
-
-Using HTTPS:
-```julia
-using Pkg
-Pkg.add(url="https://git.rwth-aachen.de/nick1/BeadPull-jl.git")
+Pkg.add(url="https://github.com/bergermann/KeyVNA")
 ```
 
 
@@ -48,9 +41,6 @@ data = KeyVNA.getTrace(vna)
 freq = KeyVNA.getFrequencies(vna)
 ```
 
-## Documentation
-
-The full documentation can be found [here](https://keyvna-jl-nick1-8d6fcf6e8080960dc44132a092fefe19bb966b633a1e611.pages.rwth-aachen.de/).
 
 ## Contact
 - [Dominik Bergermann](mailto:dominik.bergermann@rwth-aachen.de)
