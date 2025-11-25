@@ -85,27 +85,6 @@ function recv(socket::Sockets.TCPSocket,nb::Integer)
     return read(socket,nb)
 end
 
-function async_reader(io::IO, timeout_sec)::Channel
-    ch = Channel(1)
-    task = @async begin
-        reader_task = current_task()
-
-        function timeout_cb(timer)
-            put!(ch, :timeout)
-            Base.throwto(reader_task, InterruptException())
-        end
-
-        timeout = Timer(timeout_cb, timeout_sec)
-        data = String(readavailable(io))
-        timeout_sec > 0 && close(timeout) # Cancel the timeout
-        put!(ch, data)
-    end
-
-    bind(ch, task)
-
-    return ch
-end
-
 ### End private functions ###
 
 

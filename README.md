@@ -26,22 +26,20 @@ A simple example on how to use the Package.
 Connecting to the VNA and performing a sweep.
 
 ```julia
-include("src/KeyVNA.jl")
-import .KeyVNA
+using KeyVNA
 
 # Connect to the VNA using the IP
-vna = KeyVNA.connect("127.0.0.1")
+vna = connect("127.0.0.1")
 
 # Perform a single trace
 # Returns the scattering parameter for each frequency point as a
 # Vector{ComplexF64}
-data = KeyVNA.getTrace(vna)
+data = getTrace(vna)
 
 # Returns the frequency points
-freq = KeyVNA.getFrequencies(vna)
+freq = getFrequencies(vna)
 ```
 
 
 ## Contact
 - [Dominik Bergermann](mailto:dominik.bergermann@rwth-aachen.de)
-- [Nick Michaelis](mailto:nick.michaelis@rwth-aachen.de)
