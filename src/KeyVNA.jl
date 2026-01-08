@@ -545,21 +545,23 @@ Core.Float64(data::Array{UInt8}) = parse(Float64, String(data))
 
 
 """
-    getTrace(socket::TCPSocket; channel="CH1_S11_1")
+    getTrace(socket::TCPSocket; channel="1",trace="CH1_S11_1",measurement="S11")
 
-Performs a sweep and returns a `Vector{ComplexF64}` of the scattering parameter.
+Performs a sweep and returns a `Vector{ComplexF64}` of the `measurement` for specified `trace` of `channel`.
 
 Each element corresponds the the scattering parameter at the frequency given by
 the element of [`getFrequencies`](@ref) with the same index.
 """
-function getTrace(socket::Sockets.TCPSocket; channel="CH1_S11_1")
+function getTrace(socket::Sockets.TCPSocket; channel="1",trace="CH1_S11_1",measurement="S11")
     clearBuffer(socket)
 
     send(socket, "FORMat:DATA REAL,64\n") # Set the return type to a 64 bit Float
     send(socket, "FORMat:BORDer SWAPPed;*OPC?\n") # Swap the byte order and wait for the completion of the commands
-    send(socket, "CALCulate1:PARameter:SELect '$channel'\n")
+    send(socket, "CALC$channel:PAR:SELect '$trace'\n")
+    send(socket, "CALC$channel:PAR:MOD $measurement\n")
+
     send(socket, "SENSe:SWEep:MODE SINGLe;*OPC?\n")
-    send(socket, "CALCulate1:DATA? SDATA\n") # Read the S11 parameter Data
+    send(socket, "CALC$channel:DATA? SDATA\n") # Read the S11 parameter Data
     # Returns
     # 1 Byte: Block Data Delimiter '#'
     # 1 Byte: n := number of nigits for the Number of data bytes in ASCII (between 1 and 9)
@@ -832,6 +834,53 @@ end
 
 #     return complexFromTrace(Vector(data))
 # end
+
+"""
+    getTraceAll(socket::Sockets.TCPSocket; channel=1,trace="CH1_S11_1")
+
+Performs a sweep and returns a `Vector{ComplexF64}` of all scattering for specified `trace` of `channel`.
+"""
+function getTraceAll(socket::Sockets.TCPSocket; channel=1,trace="CH1_S11_1")
+    clearBuffer(socket)
+
+    send(socket, "FORM:DATA REAL,64\n") # Set the return type to a 64 bit Float
+    send(socket, "FORM:BORDer SWAPPed;*OPC?\n") # Swap the byte order and wait for the completion of the commands
+    send(socket, "CALC$channel:PAR:SEL '$trace'\n")
+    send(socket, "SENS:SWE:MODE SINGLe;*OPC?\n")
+
+    traces = Vector{Vector{ComplexF64}}(undef,4)
+
+    m = ["S11","S21","S12","S22"]
+
+    for i in 1:4
+        send(socket,"CALC$channel:PAR:MOD $(m[i])\n")
+        
+        send(socket, "CALC$channel:DATA? SDATA\n")
+        
+        while recv(socket,1)[begin] != 0x23 end
+
+        numofdigitstoread = Int(recv(socket,1))
+
+        numofbytes = Int(recv(socket, numofdigitstoread))
+
+        bytes = recv(socket, numofbytes)
+
+        data = reinterpret(Float64, bytes)
+
+        hanginglinefeed = recv(socket,1)
+        if hanginglinefeed[begin] != 0x0A
+            error("End of Line Character expected to indicate end of data block")
+        end
+
+        traces[i] = complexFromTrace(Vector(data))
+    end
+
+    return traces
+end
+
+
+
+
 
 # combined functions for convenience
 
