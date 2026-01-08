@@ -151,22 +151,20 @@ end
 Set the power level, of the VNA specified by `socket`, to `power` dBm.
 """
 function setPowerLevel(socket::Sockets.TCPSocket,power::Integer)
-    if power > 14
-        error("Power threshold reached. Must be less than 14 dBm.")
-    end
+    @assert power <= 14 "Power threshold reached. Must be less than 14 dBm."
 
-    send(socket, "SOURce:POWer:LEVel:IMMediate:AMPLitude "*string(power)*"\n")
+    send(socket, "SOURce:POWer:LEVel:IMMediate:AMPLitude $power\n")
 
     return nothing
 end
 
 """
-    setCalibration(socket::TCPSocket ,calName::String)
+    setCalibration(socket::TCPSocket,calName::String)
 
 Set the calibration file, of the VNA specified by `socket`, to `calName`
 """
-function setCalibration(socket::Sockets.TCPSocket, calName::String)
-    send(socket, "SENSe:CORRection:CSET:ACTivate \""*string(calName)*"\",1\n")
+function setCalibration(socket::Sockets.TCPSocket,calName::String)
+    send(socket, "SENSe:CORRection:CSET:ACTivate \"$calName\",1\n")
 
     return
 end
@@ -177,9 +175,7 @@ end
 TODO
 """
 function setAveraging(socket::Sockets.TCPSocket,state::Bool; counts::Int=50)
-    if counts <= 0
-        error("Count number must be positive.")
-    end
+    @assert counts > 0 "Count number must be positive."
 
     send(socket, "SENSe:AVERage:STATe "*(state ? "ON\n" : "OFF\n"))
 
@@ -219,7 +215,7 @@ function setSweepPoints(socket::Sockets.TCPSocket, points::Integer)
         error("Must use at least one sweep point.")
     end
 
-    send(socket, "SENSe1:SWEep:POINts "*string(points)*"\n")
+    send(socket, "SENSe1:SWEep:POINts $points\n")
 
     return
 end
@@ -254,7 +250,7 @@ For example the String `"CH1_S11_1"` selects Channel 1, the parameter S11
 and the trace 1.
 """
 function setMeasurement(socket::Sockets.TCPSocket, name::String)
-    send(socket, "CALCulate:PARameter:SELect '"*name*"'\n")
+    send(socket, "CALCulate:PARameter:SELect '$name'\n")
 
     return
 end
@@ -417,7 +413,7 @@ this function is being called.
 The file can then be transfered manually.
 """
 function saveS2P(socket::Sockets.TCPSocket, fileURL::String)
-    send(socket, "MMEMory:STORe "*string(fileURL)*"\n")
+    send(socket, "MMEMory:STORe $fileURL\n")
 
     return
 end
