@@ -2,7 +2,12 @@ module KeyVNA
 
 import Sockets
 
+include("gating.jl")
+
 export
+    time_domain,
+    time_gate,
+
     connect,
     disconnect,
     identify,
