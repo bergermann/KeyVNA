@@ -4,9 +4,13 @@ authors = ["Dominik Bergermann", "Nick Michaelis"]
 version = "1.0.0"
 
 [deps]
+DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [compat]
+DSP = "0.8.4"
+FFTW = "1.10.0"
 Sockets = "1"
 julia = "1"
